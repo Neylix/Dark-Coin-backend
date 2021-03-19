@@ -5,7 +5,7 @@ export function getCompanyEvents(req, res) {
   const params = [req.params.id];
 
   db.query(query, params, (error, result) => {
-    if(error) res.status(500).end(); else res.status(200).json(result);
+    if(error) res.status(500).json({ error }); else res.status(200).json(result);
   });
 }
 
