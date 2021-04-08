@@ -10,4 +10,4 @@ npm install
 
 Copy configTemplate.js to config.js
 
-Fore development, nodemon is used for livereload server
+For development, nodemon is used for livereload server

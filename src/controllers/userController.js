@@ -11,19 +11,19 @@ export async function userLogin(req, res) {
     const params = [username];
   
     db.query(query, params, (error, result) => {
-      if (error) reject(res.status(500).json({ error }));
+      if (error) reject(res.status(500).json({ error: 'Erreur interne du serveur' }));
   
-      if (!result[0]) reject(res.status(401).json({ error: 'Utilisateur incorrect' }));
+      if (!result[0]) reject(res.status(401).json({ error: 'Identifiants incorrects' }));
   
       const user = result[0];
   
       bcrypt.compare(password, user.password)
       .then(valid => {
-        if (!valid) reject(res.status(401).json({ error: 'Mot de passe incorrect' }));
+        if (!valid) reject(res.status(401).json({ error: 'Identifiants incorrects' }));
 
         resolve(user.companyId);
       })
-      .catch(error => reject(res.status(500).json({ error })));
+      .catch(() => reject(res.status(500).json({ error: 'Erreur interne du serveur' })));
     });
   });
 }
@@ -35,8 +35,9 @@ export function createUser(req, res) {
       const params = [req.body.companyId, req.body.username, hash];
 
       db.query(query, params, (error, result) => {
-        if(error) res.status(400).json({ error }); else res.status(200).json(result);
+        if (error) res.status(400).json({ error: 'Erreur lors de l\'ajout' });
+        else res.status(200).json(result);
       });
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(() => res.status(500).json({ error: 'Erreur interne du serveur' }));
 }

@@ -2,27 +2,29 @@ import db from './db.js';
 import bcrypt from 'bcrypt';
 
 export async function companyLogin(req, res) {
-  req.companyId = undefined;
+  return new Promise((resolve, reject) => {
+    req.companyId = undefined;
 
-  const { mail, password } = req.body;
+    const { mail, password } = req.body;
 
-  const query = 'SELECT * FROM Company where mail = ?';
-  const params = [mail];
+    const query = 'SELECT * FROM Company where mail = ?';
+    const params = [mail];
 
-  db.query(query, params, (error, result) => {
-    if (error) return res.status(401).json({ error });
+    db.query(query, params, (error, result) => {
+      if (error) reject(res.status(500).json({ error: 'Erreur interne du serveur' }));
 
-    if (!result[0]) return res.status(401).json({ error: 'Mail incorrect' });
+      if (!result[0]) reject(res.status(401).json({ error: 'Identifiants incorrects' }));
 
-    const company = result[0];
+      const company = result[0];
 
-    bcrypt.compare(password, company.password)
-    .then(valid => {
-      if (!valid) return res.status(401).json({ error: 'Mot de passe incorrect' });
+      bcrypt.compare(password, company.password)
+      .then(valid => {
+        if (!valid) reject(res.status(401).json({ error: 'Identifiants incorrects' }));
 
-      req.companyId = company.uniqueId;
-    })
-    .catch(error => res.status(500).json({ error }));
+        resolve(company.uniqueId);
+      })
+      .catch(() => reject(res.status(500).json({ error: 'Erreur interne du serveur' })));
+    });
   });
 }
 
@@ -31,7 +33,8 @@ export function getCompanyEvents(req, res) {
   const params = [req.params.id];
 
   db.query(query, params, (error, result) => {
-    if(error) res.status(500).json({ error }); else res.status(200).json(result);
+    if (error) res.status(500).json({ error: 'Erreur interne du serveur' });
+    else res.status(200).json(result);
   });
 }
 
@@ -41,7 +44,8 @@ export async function getCompany(companyId) {
     const params = [companyId];
   
     db.query(query, params, (error, result) => {
-      if(error) reject(null); else resolve(result[0]);
+      if (error) reject(null);
+      else resolve(result[0]);
     });
   });
 }

@@ -10,19 +10,13 @@ async function auth(req, res, next) {
       return res.status(401).json({ error: 'Missing token in cookie'});
     }
 
-    const token = cookies.access_token;
-
     if (!headers || !headers['x-xsrf-token']) {
-      return res.status(401).json({
-        error: 'Missing XSRF token in headers'
-      });
+      return res.status(401).json({ error: 'Missing XSRF token in headers' });
     }
 
-    const xsrfToken = headers['x-xsrf-token'];
+    const decodedToken = jwt.verify(cookies.access_token, config.jwt.secret);
 
-    const decodedToken = jwt.verify(token, config.jwt.secret);
-
-    if (xsrfToken !== decodedToken.xsrfToken) {
+    if (headers['x-xsrf-token'] !== decodedToken.xsrfToken) {
       return res.status(401).json({ error: 'Bad XSRF token' });
     }
 

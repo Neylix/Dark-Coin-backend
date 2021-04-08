@@ -7,7 +7,7 @@ import userRoutes from './routes/userRoutes.js';
 import roleRoutes from './routes/roleRoutes.js';
 import transfertStatisticsRoutes from './routes/transfertStatsRoutes.js';
 import itemStatisticsRoutes from './routes/itemStatsRoutes.js';
-import authorization from './middlewares/authrozation.js';
+import authorization from './middlewares/authorization.js';
 import auth from './middlewares/auth.js';
 import roles from './models/roles.js';
 import loginRoutes from './routes/loginRoutes.js';
