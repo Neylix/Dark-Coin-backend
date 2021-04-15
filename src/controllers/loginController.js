@@ -17,10 +17,10 @@ export async function login(req, res) {
     let role;
 
     if (username) {
-      companyId = await userLogin(req, res);
+      companyId = await userLogin(req, res).catch(() => { return });
       role = roles.USER;
     } else {
-      companyId = await companyLogin(req, res);
+      companyId = await companyLogin(req, res).catch(() => { return });
       role = roles.COMPANY;
     }
 
@@ -53,8 +53,8 @@ export async function login(req, res) {
     }
 
   } catch (error) {
-    console.log('ctrl');
-    console.log(error);
-    res.status(500).json({ error });
+    const err = error.toString();
+    //console.log(error);
+    res.status(500).json({ error: err });
   }
 }

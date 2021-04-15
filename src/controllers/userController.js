@@ -11,15 +11,15 @@ export async function userLogin(req, res) {
     const params = [username];
   
     db.query(query, params, (error, result) => {
-      if (error) reject(res.status(500).json({ error: 'Erreur interne du serveur' }));
+      if (error) return reject(res.status(500).json({ error: 'Erreur interne du serveur' }));
   
-      if (!result[0]) reject(res.status(401).json({ error: 'Identifiants incorrects' }));
+      if (!result[0]) return reject(res.status(401).json({ error: 'Identifiants incorrects' }));
   
       const user = result[0];
   
       bcrypt.compare(password, user.password)
       .then(valid => {
-        if (!valid) reject(res.status(401).json({ error: 'Identifiants incorrects' }));
+        if (!valid) return reject(res.status(401).json({ error: 'Identifiants incorrects' }));
 
         resolve(user.companyId);
       })
