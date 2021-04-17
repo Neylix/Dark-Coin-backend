@@ -7,7 +7,8 @@ const config = {
     secret: process.env.JWTTOKEN,
     expireIn: 86400000,
     secureCookie: true
-  }
+  },
+  cors: ['http://localhost']
 };
 
 export default config;

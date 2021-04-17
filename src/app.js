@@ -12,12 +12,16 @@ import auth from './middlewares/auth.js';
 import roles from './models/roles.js';
 import loginRoutes from './routes/loginRoutes.js';
 import cookieParser from 'cookie-parser';
+import config from './config.js'
 
 const app = express();
 
 // Middlewares
 
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: config.cors
+}));
 
 // Parse POST's body to Json
 app.use(express.urlencoded({ extended: true }));
