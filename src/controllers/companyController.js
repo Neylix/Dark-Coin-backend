@@ -30,7 +30,7 @@ export async function companyLogin(req, res) {
 
 export function getCompanyEvents(req, res) {
   const query = 'SELECT * FROM Event where companyId = ?';
-  const params = [req.params.id];
+  const params = [req.companyId];
 
   db.query(query, params, (error, result) => {
     if (error) res.status(500).json({ error: 'Erreur interne du serveur' });
@@ -38,7 +38,7 @@ export function getCompanyEvents(req, res) {
   });
 }
 
-export async function getCompany(companyId) {
+export async function localGetCompany(companyId) {
   return new Promise((resolve, reject) => {
     const query = 'SELECT * FROM Company where uniqueId = ?';
     const params = [companyId];
@@ -48,4 +48,18 @@ export async function getCompany(companyId) {
       else resolve(result[0]);
     });
   });
+}
+
+export async function getCompany(req, res) {
+  const query = 'SELECT * FROM Company where uniqueId = ?';
+    const params = [req.companyId];
+  
+    db.query(query, params, (error, result) => {
+      if (error) res.status(500).json({ error: 'Erreur interne du serveur' });
+      else res.status(200).json({
+        companyId: result[0].uniqueId,
+        mail: result[0].mail,
+        name: result[0].name
+      });
+    }); 
 }

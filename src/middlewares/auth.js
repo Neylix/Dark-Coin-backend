@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import config from '../config.js';
-import { getCompany } from '../controllers/companyController.js';
+import { localGetCompany } from '../controllers/companyController.js';
 
 async function auth(req, res, next) {
   try {
@@ -22,7 +22,7 @@ async function auth(req, res, next) {
 
     const companyId = Number(decodedToken.sub);
 
-    if (! await getCompany(companyId)) return res.status(401).json({ error: 'L\'entreprise n\'existe pas' });
+    if (! await localGetCompany(companyId)) return res.status(401).json({ error: 'L\'entreprise n\'existe pas' });
 
     req.companyId = companyId;
     req.role = decodedToken.role;
