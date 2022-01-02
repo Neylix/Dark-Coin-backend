@@ -5,6 +5,7 @@ import companyRoutes from './routes/companyRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import roleRoutes from './routes/roleRoutes.js';
+import itemRoutes from './routes/itemRoutes.js';
 import transfertStatisticsRoutes from './routes/transfertStatsRoutes.js';
 import itemStatisticsRoutes from './routes/itemStatsRoutes.js';
 import authorization from './middlewares/authorization.js';
@@ -42,6 +43,9 @@ app.use('/api/user', auth, authorization(roles.COMPANY), userRoutes);
 
 // Role
 app.use('/api/role', auth, authorization(roles.COMPANY), roleRoutes);
+
+// Item
+app.use('/api/item', auth, authorization(roles.COMPANY), itemRoutes);
 
 // TransfertStatistics
 app.use('/api/transfertStats', auth, transfertStatisticsRoutes);

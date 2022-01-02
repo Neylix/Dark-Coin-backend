@@ -42,6 +42,7 @@ export async function login(req, res) {
 
       // Create cookie with JWT
       res.cookie('access_token', token, {
+        sameSite: 'Strict',
         httpOnly: true,
         maxAge: config.jwt.expireIn
       });
