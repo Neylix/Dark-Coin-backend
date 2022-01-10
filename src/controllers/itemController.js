@@ -9,3 +9,17 @@ export async function deleteItem(req, res) {
     else res.status(204).send();
   });
 }
+
+export async function createItem(req, res) {
+  const item = {
+    ...req.body
+  }
+
+  const query = 'INSERT INTO Item(eventId, name, price) values(?, ?, ?)';
+  const params = [item.eventId, item.name, item.price];
+  
+  db.query(query, params, (error, result) => {
+    if (error) res.status(500).json({ error: 'Erreur interne du serveur'});
+    else res.status(201).end(result.insertId.toString());
+  });
+}

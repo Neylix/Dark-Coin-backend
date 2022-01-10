@@ -1,9 +1,12 @@
 import { Router } from 'express';
 const router = Router();
 
-import { deleteItem } from '../controllers/itemController.js';
+import { deleteItem, createItem } from '../controllers/itemController.js';
 
-// Get all event's data (user, items, roles, items/role)
+// Delete an item
 router.delete('/:id', deleteItem);
+
+// Create an item and return uniqueId created
+router.post('/', createItem);
 
 export default router;
