@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src\\server.js"
+    "build": "npm run build --prefix client",
+    "start": "npm run build && node src\\server.js",
+    "server": "nodemon src\\server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
@@ -27,7 +31,9 @@
     "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "concurrently": "^7.0.0",
     "eslint": "^8.5.0",
-    "eslint-plugin-import": "^2.25.3"
+    "eslint-plugin-import": "^2.25.3",
+    "nodemon": "^2.0.15"
   }
 }

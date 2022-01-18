@@ -14,6 +14,11 @@ import roles from './models/roles.js';
 import loginRoutes from './routes/loginRoutes.js';
 import cookieParser from 'cookie-parser';
 import config from './config.js'
+import path from 'path'
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -28,6 +33,9 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// used for production build (using npm run start)
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 // Login
 app.use('/api/login', loginRoutes);
@@ -52,6 +60,10 @@ app.use('/api/transfertStats', auth, transfertStatisticsRoutes);
 
 // ItemStatistics
 app.use('/api/itemStats', auth, itemStatisticsRoutes);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+});
 
 // Return 404 if no midlleware catch the request
 app.use((req, res) => res.status(404).json({ error: req.url + ' does not exist' }));
