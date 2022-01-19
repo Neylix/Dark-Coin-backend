@@ -2,7 +2,8 @@ import React, { useContext, useState, createContext } from 'react'
 import PropTypes from 'prop-types'
 import { getCompany } from './backend'
 import {
-  Navigate
+  Navigate,
+  useLocation
 } from 'react-router-dom'
 
 const authContext = createContext();
@@ -11,7 +12,7 @@ function useAuth() {
   return useContext(authContext);
 }
 
-function useProvideAuth() {
+export function ProvideAuth({ children }) {
   const [company, setCompany] = useState(null);
 
   const signin = cb => {
@@ -27,15 +28,11 @@ function useProvideAuth() {
     cb();
   };
 
-  return {
+  const auth = {
     company,
     signin,
     signout
   };
-}
-
-export function ProvideAuth({ children }) {
-  const auth = useProvideAuth();
 
   return (
     <authContext.Provider value={auth}>
@@ -49,7 +46,9 @@ ProvideAuth.propTypes = {
 }
 
 export function PrivateRoute( {children} ) {
-  let auth = useAuth();
+  const auth = useAuth();
+  const location = useLocation();
+
   return (
     auth.company ? (
       children
@@ -57,6 +56,7 @@ export function PrivateRoute( {children} ) {
       <Navigate
         to='/login'
         state={{ from: location}}
+        replace
       />
     )
   );
@@ -68,10 +68,15 @@ PrivateRoute.propTypes = {
 
 export function AlreadyLogged( {children} ) {
   let auth = useAuth();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/dashboard'
+
   return (
     auth.company ? (
       <Navigate
-        to='/dashboard'
+        to={from}
+        replace
       />
     ) : (
       children

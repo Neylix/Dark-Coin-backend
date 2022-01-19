@@ -93,8 +93,7 @@ function Login() {
 
       if (!mailError && !passwordError) {
         setIsloading(true);
-        login(event.target.email.value, event.target.password.value)
-        .then(() => {
+        login(event.target.email.value, event.target.password.value).then(() => {
           setLoginError(undefined);
 
           auth.signin((err) => {
@@ -120,12 +119,15 @@ function Login() {
         <Typography component="h1" variant="h3" className={classes.title}>
           Dark Coin
         </Typography>
+
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
+
         <Typography component="h2" variant="h5">
           Connexion
         </Typography>
+
         <form className={classes.form} onSubmit={handleSubmit} noValidate>
           <TextField
             variant="outlined"
@@ -142,6 +144,7 @@ function Login() {
             error={mail.error}
             helperText={mail.error && mail.errorText}
           />
+
           <TextField
             variant="outlined"
             margin="normal"
@@ -162,6 +165,7 @@ function Login() {
           <Typography component="p" variant="body2" color="error" align="center">
             {loginError}
           </Typography>
+
           <Button
             type="submit"
             fullWidth
@@ -177,23 +181,28 @@ function Login() {
             /> }
             Connexion
           </Button>
+
           <Grid container>
             <Grid item xs>
               <Link variant="body2" className={classes.disabledLink} underline="hover">
                 Mot de passe oublié ? 
               </Link>
             </Grid>
+
             <Grid item>
               <Link component={RouterLink} to="/register" color="primary" underline="hover">
                 {"Pas de compte ? S'inscrire"}
               </Link>
             </Grid>
+
           </Grid>
         </form>
       </div>
+
       <Box mt={8}>
         <Copyright />
       </Box>
+
     </Container>
   );
 }

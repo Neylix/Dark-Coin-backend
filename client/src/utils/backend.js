@@ -21,11 +21,7 @@ export async function login(mail, password) {
     }).catch(err => {
       console.log(err);
 
-      err.response && err.response.data ? (
-        reject(err.response.data.error)
-      ) : (
-        reject('Erreur de communication avec le serveur')
-      )
+      reject(err.response?.data?.error || 'Erreur de communication avec le serveur')
     })
   })
 }
