@@ -1,7 +1,7 @@
 import Axios from 'axios'
 
 const request = Axios.create({
-  baseURL: 'api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
     'x-xsrf-token': localStorage.getItem('xsrfToken')
