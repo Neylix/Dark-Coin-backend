@@ -6,13 +6,8 @@ import Button from '@mui/material/Button';
 import { makeStyles } from '@mui/styles'
 import useEvent from '../utils/eventContext';
 import SnackAlert from '../components/SnackAlert';
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import { createItem } from '../utils/backend';
+import SetItemDialog from '../components/SetItemDialog';
+import modes from '../utils/dialogMode';
 
 const useStyle = makeStyles(theme => ({
   newButton: {
@@ -25,22 +20,13 @@ function Items() {
   const classes = useStyle();
   const eventContext = useEvent();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [itemPrice, setItemPrice] = useState('');
   const [snackParams, setSnackParams] = useState({
     open: false,
     message : undefined,
     severity: undefined
   });
-  const [diagError, setDiagError] = useState({
-    nameError: false,
-    nameErrorText: '',
-    priceError: false,
-    priceErrorText: ''
-  })
 
-  const handleDeleteItem = (item) => {
-    eventContext.deleteItem(item);
-
+  const handleDeleteItem = () => {
     setSnackParams({open: false});
     setSnackParams({
       open: true,
@@ -56,80 +42,6 @@ function Items() {
     setSnackParams({open: false});
   }
 
-  const handleCloseCreateItem = () => {
-    setCreateDialogOpen(false);
-    setItemPrice('');
-    setDiagError({
-      nameError: false,
-      nameErrorText: '',
-      priceError: false,
-      priceErrorText: ''
-    })
-  }
-
-  const handlePriceChange = (event) => {
-    const re = /^\d+(\.\d{0,2})?$/;
-    if (re.test(event.target.value) || event.target.value.length === 0) {
-      setItemPrice(event.target.value);
-    }
-  }
-
-  const creItem = (event) => {
-    event.preventDefault();
-
-    const nameError = event.target.name.value === ''
-    const priceError = event.target.price.value === ''
-
-    if (nameError || priceError) {
-      setDiagError({
-        nameError: nameError,
-        nameErrorText: nameError ? 'Champ requis' : '',
-        priceError: priceError,
-        priceErrorText: priceError ? 'Champ requis' : ''
-      })
-
-      return;
-    } else {
-      setDiagError({
-        nameError: false,
-        nameErrorText: '',
-        priceError: false,
-        priceErrorText: ''
-      })
-    }
-
-    const item = {
-      eventId: eventContext.selectedEvent.uniqueId,
-      name: event.target.name.value,
-      price: event.target.price.value
-    }
-
-    createItem(item).then((itemId) => {
-      item.uniqueId = itemId;
-      item.itemStatistics = [];
-
-      eventContext.createItem(item);
-
-      setItemPrice('');
-
-      setSnackParams({open: false});
-      setSnackParams({
-        open: true,
-        message: 'Article créer !',
-        severity: 'success'
-      });
-
-      setCreateDialogOpen(false);
-    }).catch(() => {
-      setSnackParams({open: false});
-      setSnackParams({
-        open: true,
-        message: 'Erreur lors de la création de l\'article !',
-        severity: 'error'
-      });
-    })
-  }
-
   return (
     <>
       {/* Popup / Dialog and things depending user actions */}
@@ -140,64 +52,12 @@ function Items() {
         handleOnClose={handleCloseSnack}
       />
 
-      <Dialog
+      <SetItemDialog
         open={createDialogOpen}
-        onClose={handleCloseCreateItem}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          Créer un article
-        </DialogTitle>
-        <form id='alert-dialog-description' onSubmit={creItem} noValidate>
-          <DialogContent>
-            <TextField
-              variant='outlined'
-              label='Nom'
-              id='name'
-              fullWidth
-              margin='dense'
-              autoFocus
-              required
-              error={diagError.nameError}
-              helperText={diagError.nameErrorText}
-            />
-
-            <TextField
-              variant='outlined'
-              label='Prix'
-              id='price'
-              type='number'
-              fullWidth
-              margin='dense'
-              InputProps={{
-                startAdornment: <InputAdornment position='start'>€</InputAdornment>
-              }}
-              onChange={handlePriceChange}
-              value={itemPrice}
-              required
-              error={diagError.priceError}
-              helperText={diagError.priceErrorText}
-            />
-          </DialogContent>
-
-          <DialogActions>
-            <Button
-              variant='outlined'
-              onClick={handleCloseCreateItem}
-            >
-              Annuler
-            </Button>
-            <Button
-              variant='outlined'
-              color='success'
-              type='submit'
-            >
-              Créer
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+        setOpen={setCreateDialogOpen}
+        mode={modes.CREATE}
+        item={undefined}
+      />
 
       {/* Constant page */}
       <Button

@@ -85,3 +85,17 @@ export async function createItem(item) {
     })
   })
 }
+
+export async function updateItem(item) {
+  return new Promise((resolve, reject) => {
+    const path = '/item/' + item.uniqueId
+    request.put(path, {
+      ...item
+    }).then(res => {
+      resolve(res.data);
+    }).catch(err => {
+      console.log(err);
+      reject(err);
+    })
+  })
+}

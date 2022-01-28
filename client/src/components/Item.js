@@ -11,15 +11,9 @@ import CreateIcon from '@mui/icons-material/Create';
 import ToolTip from '@mui/material/Tooltip';
 import CardActions from '@mui/material/CardActions'
 import CardHeader from '@mui/material/CardHeader'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
-import { deleteItem } from '../utils/backend'
-import SnackAlert from './SnackAlert'
-import useEvent from '../utils/eventContext'
+import DeleteItemDialog from './DeleteItemDialog'
+import SetItemDialog from './SetItemDialog'
+import modes from '../utils/dialogMode'
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -44,21 +38,13 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     marginBottom: theme.spacing(1)
-  },
-  deleteItemName: {
-    fontWeight: 'bold'
-  },
-  deleteWarningText: {
-    color: theme.palette.warning.main
   }
 }));
 
 function Item({ item, handleDeleteItem }) {
   const classes = useStyles();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [snackOpen, setSnackOpen] = useState(false);
-  const [snackMessage, setSnackMessage] = useState(undefined);
-  const eventContext = useEvent();
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
   const cardTitle = (
     <>
@@ -69,85 +55,20 @@ function Item({ item, handleDeleteItem }) {
     </>
   )
 
-  const delItem = () => {
-    deleteItem(item.uniqueId).then(() => {
-      setDeleteOpen(false);
-      // Timeout to avoid dialog to display next item before closing
-      setTimeout(() => {
-        handleDeleteItem(item);
-      }, 150)
-    }).catch(() => {
-      setSnackOpen(false);
-      setSnackMessage('Erreur lors de la suppression de l\'article !');
-      setSnackOpen(true);
-    })
-  }
-
-  const handleCloseSnack = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackOpen(false);
-  }
-
-  const deleteContentText = () => {
-    let text = undefined
-    // Test if this item is assoociated to a role
-    for (let role of eventContext.selectedEvent.roles) {
-      if (role.items.find(itemId => itemId == item.uniqueId)) {
-        text = 'Attention, cet article est associé à un role'
-        break
-      }
-    }
-
-    if (item.itemStatistics.length > 0) {
-      if (text) {
-        text += ' et contient des statistiques'
-      } else {
-        text = 'Attention, cet article contient des statistiques'
-      }
-    }
-
-    return (
-      <>
-        <span className={classes.deleteItemName}>{item.name}</span>
-        {text ? (
-          <>
-            <br />
-            <span className={classes.deleteWarningText}>{text}</span>
-          </>
-        ) : ''}
-      </>
-    )
-  }
-
   return (
     <>
-      <Dialog
+      <DeleteItemDialog
+        item={item}
         open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Voulez-vous supprimer cet article ?"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {deleteContentText()}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant='outlined' onClick={() => setDeleteOpen(false)}>Annuler</Button>
-          <Button variant='outlined' color='error' onClick={delItem}>Supprimer</Button>
-        </DialogActions>
-      </Dialog>
+        setOpen={setDeleteOpen}
+        handleDeleteItem={handleDeleteItem}
+      />
 
-      <SnackAlert
-        open={snackOpen}
-        severity="error"
-        message={snackMessage}
-        handleOnClose={handleCloseSnack}
+      <SetItemDialog
+        open={updateDialogOpen}
+        setOpen={setUpdateDialogOpen}
+        mode={modes.UPDATE}
+        item={item}
       />
 
       <Card className={classes.card}>
@@ -164,6 +85,7 @@ function Item({ item, handleDeleteItem }) {
             <IconButton
               color='warning'
               className={classes.updateButton}
+              onClick={() => setUpdateDialogOpen(true)}
             >
               <CreateIcon />
             </IconButton>
