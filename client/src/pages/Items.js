@@ -39,18 +39,14 @@ function Items() {
   })
 
   const handleDeleteItem = (item) => {
-    const items = eventContext.items.slice();
-    const index = eventContext.items.indexOf(item);
-    if (index > -1) {
-      items.splice(index, 1);
-      eventContext.setItems(items);
-      setSnackParams({open: false});
-      setSnackParams({
-        open: true,
-        message: 'Article supprimé !',
-        severity: 'success'
-      });
-    }
+    eventContext.deleteItem(item);
+
+    setSnackParams({open: false});
+    setSnackParams({
+      open: true,
+      message: 'Article supprimé !',
+      severity: 'success'
+    });
   }
 
   const handleCloseSnack = (event, reason) => {
@@ -58,10 +54,6 @@ function Items() {
       return;
     }
     setSnackParams({open: false});
-  }
-
-  const handleCreateItem = () => {
-    setCreateDialogOpen(true);
   }
 
   const handleCloseCreateItem = () => {
@@ -114,9 +106,9 @@ function Items() {
 
     createItem(item).then((itemId) => {
       item.uniqueId = itemId;
-      const items = eventContext.items.slice();
-      items.push(item);
-      eventContext.setItems(items);
+      item.itemStatistics = [];
+
+      eventContext.createItem(item);
 
       setItemPrice('');
 
@@ -212,7 +204,7 @@ function Items() {
         color='success'
         className={classes.newButton}
         variant ='contained'
-        onClick={handleCreateItem}
+        onClick={() => setCreateDialogOpen(true)}
       >
         Créer un article
       </Button>
