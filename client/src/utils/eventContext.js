@@ -43,6 +43,15 @@ function useProvideEvent() {
     }
   }
 
+  const updateItem = (item) => {
+    const tempItems = items.slice();
+    const updatedItem = tempItems.find(it => it.uniqueId === item.uniqueId);
+    const index = tempItems.indexOf(updatedItem);
+    tempItems[index].name = item.name
+    tempItems[index].price = item.price
+    setItems(tempItems);
+  }
+
   return {
     events,
 		setEvents,
@@ -51,7 +60,8 @@ function useProvideEvent() {
 		items,
 		setItems,
     createItem,
-    deleteItem
+    deleteItem,
+    updateItem
   };
 }
 

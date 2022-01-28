@@ -24,3 +24,19 @@ export async function createItem(req, res) {
     else res.status(201).end(result.insertId.toString());
   });
 }
+
+export async function updateItem(req, res) {
+  const item = {
+    ...req.body
+  }
+
+  const itemId = req.params.id;
+
+  const query = 'UPDATE Item set name = ?, price = ? where uniqueId = ?';
+  const params = [item.name, item.price, itemId];
+  
+  db.query(query, params, (error) => {
+    if (error) res.status(500).json({ error: 'Erreur interne du serveur'});
+    else res.status(200).send();
+  });
+}
