@@ -19,6 +19,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Button from '@mui/material/Button'
 import { deleteItem } from '../utils/backend'
 import SnackAlert from './SnackAlert'
+import useEvent from '../utils/eventContext'
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -43,6 +44,12 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     marginBottom: theme.spacing(1)
+  },
+  deleteItemName: {
+    fontWeight: 'bold'
+  },
+  deleteWarningText: {
+    color: theme.palette.warning.main
   }
 }));
 
@@ -51,6 +58,7 @@ function Item({ item, handleDeleteItem }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState(undefined);
+  const eventContext = useEvent();
 
   const cardTitle = (
     <>
@@ -63,20 +71,16 @@ function Item({ item, handleDeleteItem }) {
 
   const delItem = () => {
     deleteItem(item.uniqueId).then(() => {
-      handleDeleteItem(item);
+      setDeleteOpen(false);
+      // Timeout to avoid dialog to display next item before closing
+      setTimeout(() => {
+        handleDeleteItem(item);
+      }, 150)
     }).catch(() => {
       setSnackOpen(false);
       setSnackMessage('Erreur lors de la suppression de l\'article !');
       setSnackOpen(true);
     })
-  }
-
-  const handleCloseDelete = () => {
-    setDeleteOpen(false);
-  }
-
-  const handleDelete = () => {
-    setDeleteOpen(true);
   }
 
   const handleCloseSnack = (event, reason) => {
@@ -86,11 +90,42 @@ function Item({ item, handleDeleteItem }) {
     setSnackOpen(false);
   }
 
+  const deleteContentText = () => {
+    let text = undefined
+    // Test if this item is assoociated to a role
+    for (let role of eventContext.selectedEvent.roles) {
+      if (role.items.find(itemId => itemId == item.uniqueId)) {
+        text = 'Attention, cet article est associé à un role'
+        break
+      }
+    }
+
+    if (item.itemStatistics.length > 0) {
+      if (text) {
+        text += ' et contient des statistiques'
+      } else {
+        text = 'Attention, cet article contient des statistiques'
+      }
+    }
+
+    return (
+      <>
+        <span className={classes.deleteItemName}>{item.name}</span>
+        {text ? (
+          <>
+            <br />
+            <span className={classes.deleteWarningText}>{text}</span>
+          </>
+        ) : ''}
+      </>
+    )
+  }
+
   return (
     <>
       <Dialog
         open={deleteOpen}
-        onClose={handleCloseDelete}
+        onClose={() => setDeleteOpen(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -99,11 +134,11 @@ function Item({ item, handleDeleteItem }) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {item.name}
+            {deleteContentText()}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant='outlined' onClick={handleCloseDelete}>Annuler</Button>
+          <Button variant='outlined' onClick={() => setDeleteOpen(false)}>Annuler</Button>
           <Button variant='outlined' color='error' onClick={delItem}>Supprimer</Button>
         </DialogActions>
       </Dialog>
@@ -138,7 +173,7 @@ function Item({ item, handleDeleteItem }) {
             <IconButton
               color="error"
               className={classes.deleteButton}
-              onClick={handleDelete}
+              onClick={() => setDeleteOpen(true)}
             >
               <DeleteForeverIcon />
             </IconButton>

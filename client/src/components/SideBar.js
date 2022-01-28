@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { makeStyles } from '@mui/styles'
 import Drawer from '@mui/material/Drawer'
 import Divider from '@mui/material/Divider'
@@ -54,6 +54,12 @@ function SideBar({ mobileOpen, handleDrawerToggle, menuList, handleSelectedEvent
   const classes = useStyles();
   const location = useLocation();
   const eventContext = useEvent();
+  const [listSelected, setListSelected] = useState(eventContext.events[0]);
+
+  const handleChange = (event) => {
+    setListSelected(event);
+    handleSelectedEvent(event);
+  }
 
   const content = (
     <>
@@ -88,8 +94,8 @@ function SideBar({ mobileOpen, handleDrawerToggle, menuList, handleSelectedEvent
               </Typography>
             })
           }}
-          value={eventContext.selectedEvent}
-          onChange={event => handleSelectedEvent(event.target.value)}
+          value={listSelected}
+          onChange={event => handleChange(event.target.value)}
           variant='standard'
           fullWidth={true}
         >
@@ -113,7 +119,7 @@ function SideBar({ mobileOpen, handleDrawerToggle, menuList, handleSelectedEvent
           to={path}
           key={index}
           button 
-          selected={'/dashboard/'+path === location.pathname}
+          selected={'/dashboard/' + path === location.pathname}
           divider
         >
           <ListItemText>{title}</ListItemText>

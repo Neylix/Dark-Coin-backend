@@ -18,22 +18,49 @@ function useProvideEvent() {
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [items, setItems] = useState(null);
 
+  const createItem = (item) => {
+    const tempItems = items.slice();
+    tempItems.push(item);
+    setItems(tempItems);
+  }
+
+  const deleteItem = (item) => {
+    const event = Object.assign({}, selectedEvent)
+    event.roles.forEach(role => {
+      const index = role.items.indexOf(item.uniqueId);
+      if (index > -1 ) {
+        role.items.splice(index, 1);
+      }
+    })
+
+    setSelectedEvent(event);
+
+    const tempItems = items.slice();
+    const index = tempItems.indexOf(item);
+    if (index > -1) {
+      tempItems.splice(index, 1);
+      setItems(tempItems);
+    }
+  }
+
   return {
     events,
 		setEvents,
     selectedEvent,
     setSelectedEvent,
 		items,
-		setItems
+		setItems,
+    createItem,
+    deleteItem
   };
 }
 
 export function ProvideEvent ({ children }) {
-	const event = useProvideEvent();
+	const context = useProvideEvent();
 
 	return (
-		<eventContext.Provider value={event}>
-				{children}
+		<eventContext.Provider value={context}>
+      {children}
 		</eventContext.Provider>
 	)
 }

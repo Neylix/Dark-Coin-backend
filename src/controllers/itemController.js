@@ -1,6 +1,7 @@
 import db from './db.js';
 
 export async function deleteItem(req, res) {
+  
   const query = 'DELETE from Item where uniqueId = ?';
   const params = [req.params.id];
   
