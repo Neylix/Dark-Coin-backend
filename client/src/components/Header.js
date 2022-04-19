@@ -57,9 +57,7 @@ function Header({ handleDrawerToggle }) {
   }
 
   const logout = () => {
-    eventContext.setEvents(null);
-    eventContext.setSelectedEvent(null);
-    eventContext.setItems(null);
+    eventContext.cleanContext();
     auth.signout(() => {});
   }
 

@@ -1,17 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '@mui/material/Button';
 // import { makeStyles } from '@mui/styles'
 import useEvent from '../utils/eventContext';
 import PropTypes from 'prop-types'
-import SnackAlert from '../components/SnackAlert';
+import SnackAlert from './SnackAlert';
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
-import { createItem, updateItem } from '../utils/backend';
 import modes from '../utils/dialogMode';
+import Stack from '@mui/material/Stack'
 
 // const useStyle = makeStyles(theme => ({
 //   newButton: {
@@ -43,22 +43,22 @@ function SetItemDialog({ open, setOpen, mode, item }) {
     priceErrorText: ''
   })
 
-  const handleCloseSnack = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackParams({ open: false });
-  }
-
-  const handleClose = () => {
-    setOpen(false);
+  useEffect(() => {
     mode === modes.CREATE ? setItemPrice('') : setItemPrice(item.price);
+
     setDiagError({
       nameError: false,
       nameErrorText: '',
       priceError: false,
       priceErrorText: ''
     })
+  }, [open])
+
+  const handleCloseSnack = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackParams({ open: false });
   }
 
   const handlePriceChange = (event) => {
@@ -99,52 +99,30 @@ function SetItemDialog({ open, setOpen, mode, item }) {
       price: event.target.price.value
     }
 
-    if (mode === modes.CREATE) {
-      createItem(tempItem).then((itemId) => {
-        tempItem.uniqueId = itemId;
-        tempItem.itemStatistics = [];
+    const prom = mode === modes.CREATE ? 
+      eventContext.createItem(tempItem) : 
+      eventContext.updateItem(tempItem)
 
-        eventContext.createItem(tempItem);
+    prom.then(() => {
 
-        setItemPrice('');
+      setSnackParams({ open: false });
+      setSnackParams({
+        open: true,
+        message: mode === modes.CREATE ? 'Article créé !' : 'Article modifié !',
+        severity: 'success'
+      });
 
-        setSnackParams({ open: false });
-        setSnackParams({
-          open: true,
-          message: 'Article crée !',
-          severity: 'success'
-        });
-
-        setOpen(false);
-      }).catch(() => {
-        setSnackParams({ open: false });
-        setSnackParams({
-          open: true,
-          message: 'Erreur lors de la création de l\'article !',
-          severity: 'error'
-        });
-      })
-    } else {
-      updateItem(tempItem).then(() => {
-        eventContext.updateItem(tempItem);
-
-        setSnackParams({ open: false });
-        setSnackParams({
-          open: true,
-          message: 'Article modifié !',
-          severity: 'success'
-        });
-
-        setOpen(false);
-      }).catch(() => {
-        setSnackParams({ open: false });
-        setSnackParams({
-          open: true,
-          message: 'Erreur lors de la modification de l\'article !',
-          severity: 'error'
-        });
-      })
-    }
+      setOpen(false);
+    }).catch(() => {
+      setSnackParams({ open: false });
+      setSnackParams({
+        open: true,
+        message: mode === modes.CREATE ? 
+          'Erreur lors de la création de l\'article !' : 
+          'Erreur lors de la modification de l\'article !',
+        severity: 'error'
+      });
+    })
   }
 
   return (
@@ -159,7 +137,7 @@ function SetItemDialog({ open, setOpen, mode, item }) {
 
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -168,41 +146,41 @@ function SetItemDialog({ open, setOpen, mode, item }) {
         </DialogTitle>
         <form id='alert-dialog-description' onSubmit={setItem} noValidate>
           <DialogContent>
-            <TextField
-              variant='outlined'
-              label='Nom'
-              id='name'
-              fullWidth
-              margin='dense'
-              autoFocus
-              required
-              defaultValue={mode === modes.UPDATE ? item.name : ''}
-              error={diagError.nameError}
-              helperText={diagError.nameErrorText}
-            />
+            <Stack spacing={3}>
+              <TextField
+                variant='outlined'
+                label='Nom'
+                id='name'
+                fullWidth
+                autoFocus
+                required
+                defaultValue={mode === modes.UPDATE ? item.name : ''}
+                error={diagError.nameError}
+                helperText={diagError.nameErrorText}
+              />
 
-            <TextField
-              variant='outlined'
-              label='Prix'
-              id='price'
-              type='number'
-              fullWidth
-              margin='dense'
-              InputProps={{
-                startAdornment: <InputAdornment position='start'>€</InputAdornment>
-              }}
-              onChange={handlePriceChange}
-              value={itemPrice}
-              required
-              error={diagError.priceError}
-              helperText={diagError.priceErrorText}
-            />
+              <TextField
+                variant='outlined'
+                label='Prix'
+                id='price'
+                type='number'
+                fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position='start'>€</InputAdornment>
+                }}
+                onChange={handlePriceChange}
+                value={itemPrice}
+                required
+                error={diagError.priceError}
+                helperText={diagError.priceErrorText}
+              />
+            </Stack>
           </DialogContent>
 
           <DialogActions>
             <Button
               variant='outlined'
-              onClick={handleClose}
+              onClick={() => setOpen(false)}
             >
               Annuler
             </Button>

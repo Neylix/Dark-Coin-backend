@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
   },
   updateButton: {
     border: '1px solid',
-    borderColor: theme.palette.warning.main
+    borderColor: theme.palette.primary.main
   },
   deleteButton: {
     border: '1px solid',
@@ -83,7 +83,7 @@ function Item({ item, handleDeleteItem }) {
         <CardActions disableSpacing className={classes.cardAction}>
           <ToolTip title="Modifier">
             <IconButton
-              color='warning'
+              color='primary'
               className={classes.updateButton}
               onClick={() => setUpdateDialogOpen(true)}
             >

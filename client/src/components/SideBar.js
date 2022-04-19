@@ -10,11 +10,14 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Hidden from '@mui/material/Hidden'
 import PropTypes from 'prop-types'
-import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add';
 import useEvent from '../utils/eventContext'
+import SetEventDialog from './SetEventDialog'
+import modes from '../utils/dialogMode'
+import Tooltip from '@mui/material/Tooltip'
+import Select from '@mui/material/Select'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 
 const useStyles = makeStyles(theme => ({
@@ -54,15 +57,23 @@ function SideBar({ mobileOpen, handleDrawerToggle, menuList, handleSelectedEvent
   const classes = useStyles();
   const location = useLocation();
   const eventContext = useEvent();
-  const [listSelected, setListSelected] = useState(eventContext.events[0]);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const handleChange = (event) => {
-    setListSelected(event);
-    handleSelectedEvent(event);
+    const index = event.target.value
+    const ev = eventContext.events[index]
+    handleSelectedEvent(ev);
   }
 
   const content = (
     <>
+      <SetEventDialog
+        open={createDialogOpen}
+        setOpen={setCreateDialogOpen}
+        mode={modes.CREATE}
+        event={undefined}
+      />
+
       <div className={classes.toolbar}>
         <div className={classes.toolbarWrapper}>
           <Avatar src={Logo} className={classes.avatar} />
@@ -76,35 +87,37 @@ function SideBar({ mobileOpen, handleDrawerToggle, menuList, handleSelectedEvent
 
       {/* Event selection */}
       <div>
-        <IconButton variant='contained' className={classes.newButton} size='small'>
-          <AddIcon />
-        </IconButton>
-        <TextField
+        <Tooltip title="Créer un événement">
+          <IconButton
+            variant='contained'
+            className={classes.newButton}
+            size='small'
+            onClick={() => setCreateDialogOpen(true)}
+          >
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Select
           className={classes.eventSelect}
-          select
-          SelectProps={{
-            renderValue: (function title(evt) {
-              return <Typography 
+          value={eventContext.selectedIndex}
+          onChange={handleChange}
+          variant='standard'
+          fullWidth={true}
+        >
+          {eventContext.events.map((evt, index) => (
+            <MenuItem value={index} key={index}>
+              <Typography 
                 component='h4'
                 variant='subtitle1'
                 align='center'
                 noWrap={true}
               >
-                {evt.name}
+                {eventContext.events[index].name}
               </Typography>
-            })
-          }}
-          value={listSelected}
-          onChange={event => handleChange(event.target.value)}
-          variant='standard'
-          fullWidth={true}
-        >
-          {eventContext.events.map((evt, index) => (
-            <MenuItem value={evt} key={index}>
-              {evt.name}
             </MenuItem>
           ))}
-        </TextField>
+        </Select>
       </div>
 
       <Divider />
@@ -148,6 +161,7 @@ function SideBar({ mobileOpen, handleDrawerToggle, menuList, handleSelectedEvent
           {content}
         </Drawer>
       </Hidden>
+      
       <Hidden mdDown>
         <Drawer
           classes={{

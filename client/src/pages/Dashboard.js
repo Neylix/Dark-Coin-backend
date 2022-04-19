@@ -6,7 +6,6 @@ import { makeStyles } from '@mui/styles';
 import Event from './Event';
 import Items from './Items';
 import useEvent from '../utils/eventContext';
-import { getEvents, getEventDatas } from '../utils/backend';
 import Backdrop from '@mui/material/Backdrop';
 import Loading from './Loading';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -60,31 +59,22 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const eventContext = useEvent();
 
-  useEffect(() => {
-    loadEvents();
-  }, []);
-
-  const loadEvents = () => {
-    getEvents().then(res => {
-      eventContext.setEvents(res);
-      handleSelectedEvent(res[0]);
-    }).catch(err => {
-      console.log(err);
+  useEffect(async () => {
+    eventContext.loadEvents().then(events => {
+      eventContext.selectEvent(events[0]).then(() => {
+        setIsLoadingEvents(false);
+      })
     })
-  }
+  }, []);
 
   const handleDrawerToggle = () => {
     setSidebarOpen(!sidebarOpen)
   }
 
-  const handleSelectedEvent = (event) => {
+  const handleSelectedEvent = async (event) => {
     setIsLoading(true);
-    getEventDatas(event).then(res => {
-      eventContext.setItems(res.items);
-      event.roles = res.roles;
-      eventContext.setSelectedEvent(event);
+    eventContext.selectEvent(event).then(() => {
       setIsLoading(false);
-      setIsLoadingEvents(false);
     })
   }
 
