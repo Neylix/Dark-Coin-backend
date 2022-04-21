@@ -2,11 +2,15 @@ import db from './db.js';
 
 export function addItemStats(req, res) {
   if (req.body.itemStats[0]) {
-    const query = 'INSERT INTO ItemStatistics(itemId, quantity, date, roleId, chipId) values (?, ?, ?, ?, ?)';
+    const query = `INSERT INTO ItemStatistics(
+        itemId, quantity, updated, updatedPrice, date, roleId, chipId
+      ) values (?, ?, ?, ?, ?, ?, ?)`;
     req.body.itemStats.forEach(itemStat => {
       const params = [
         itemStat.itemId,
         itemStat.quantity,
+        itemStat.updated,
+        itemStat.updatedPrice,
         itemStat.date,
         itemStat.roleId,
         itemStat.chipId
