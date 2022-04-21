@@ -99,3 +99,31 @@ export async function updateItem(item) {
     })
   })
 }
+
+export async function createEvent(event) {
+  return new Promise((resolve, reject) => {
+    const path = '/event'
+    request.post(path, {
+      ...event
+    }).then(res => {
+      resolve(res.data);
+    }).catch(err => {
+      console.log(err);
+      reject(err);
+    })
+  })
+}
+
+export async function updateEvent(event) {
+  return new Promise((resolve, reject) => {
+    const path = '/event/' + event.uniqueId
+    request.put(path, {
+      ...event
+    }).then(res => {
+      resolve(res.data);
+    }).catch(err => {
+      console.log(err);
+      reject(err);
+    })
+  })
+}

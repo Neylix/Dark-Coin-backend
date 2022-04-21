@@ -7,7 +7,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Button from '@mui/material/Button'
-import { deleteItem } from '../utils/backend'
 import SnackAlert from './SnackAlert'
 import useEvent from '../utils/eventContext'
 
@@ -27,13 +26,9 @@ function DeleteItemDialog({ item, open, setOpen, handleDeleteItem }) {
   const eventContext = useEvent();
 
   const delItem = () => {
-    deleteItem(item.uniqueId).then(() => {
+    eventContext.deleteItem(item).then(() => {
       setOpen(false);
-      // Timeout to avoid dialog to display next item before closing
-      setTimeout(() => {
-        eventContext.deleteItem(item);
-        handleDeleteItem();
-      }, 100)
+      handleDeleteItem();
     }).catch(() => {
       setSnackOpen(false);
       setSnackMessage('Erreur lors de la suppression de l\'article !');
@@ -51,10 +46,12 @@ function DeleteItemDialog({ item, open, setOpen, handleDeleteItem }) {
   const deleteContentText = () => {
     let text = undefined
     // Test if this item is assoociated to a role
-    for (let role of eventContext.selectedEvent.roles) {
-      if (role.items.find(itemId => itemId == item.uniqueId)) {
-        text = 'Attention, cet article est associé à un role'
-        break
+    if (eventContext.selectedEvent.roles.length > 0) {
+      for (let role of eventContext.selectedEvent.roles) {
+        if (role.items.find(itemId => itemId == item.uniqueId)) {
+          text = 'Attention, cet article est associé à un role'
+          break
+        }
       }
     }
 

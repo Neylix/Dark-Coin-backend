@@ -58,3 +58,35 @@ export async function getEventDatas(req, res) {
     res.status(500).json({ error: 'Erreur interne du serveur' });
   }
 }
+
+export async function createEvent(req, res) {
+  const event = {
+    ...req.body
+  }
+
+  const companyId = req.companyId
+
+  const query = 'INSERT INTO Event(companyId, name, beginingDate, endingDate) values(?, ?, ?, ?)';
+  const params = [companyId, event.name, event.beginingDate, event.endingDate];
+  
+  db.query(query, params, (error, result) => {
+    if (error) res.status(500).json({ error: 'Erreur interne du serveur'});
+    else res.status(201).end(result.insertId.toString());
+  });
+}
+
+export async function updateEvent(req, res) {
+  const event = {
+    ...req.body
+  }
+
+  const eventId = req.params.id
+
+  const query = 'UPDATE Event set name = ?, beginingDate = ?, endingDate = ? where uniqueId = ?';
+  const params = [event.name, event.beginingDate, event.endingDate, eventId];
+  
+  db.query(query, params, (error) => {
+    if (error) res.status(500).json({ error: 'Erreur interne du serveur'});
+    else res.status(200).send();
+  });
+}
